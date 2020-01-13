@@ -12,15 +12,12 @@ struct Stg_Force_EURUSD_M30_Params : Stg_Force_Params {
     Force_Period = 2;
     Force_Applied_Price = 3;
     Force_Shift = 0;
-    Force_TrailingStopMethod = 6;
-    Force_TrailingProfitMethod = 11;
+    Force_SignalOpenMethod = 0;
     Force_SignalOpenLevel = 36;
-    Force_SignalBaseMethod = 0;
-    Force_SignalOpenMethod1 = 195;
-    Force_SignalOpenMethod2 = 0;
+    Force_SignalCloseMethod = 1;
     Force_SignalCloseLevel = 36;
-    Force_SignalCloseMethod1 = 1;
-    Force_SignalCloseMethod2 = 0;
+    Force_PriceLimitMethod = 0;
+    Force_PriceLimitLevel = 0;
     Force_MaxSpread = 5;
   }
 };
