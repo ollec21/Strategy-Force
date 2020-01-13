@@ -30,6 +30,7 @@ INPUT double Force_MaxSpread = 6.0;                                 // Max sprea
 // Struct to define strategy parameters to override.
 struct Stg_Force_Params : Stg_Params {
   unsigned int Force_Period;
+  ENUM_MA_METHOD Force_MA_Method;
   ENUM_APPLIED_PRICE Force_Applied_Price;
   int Force_Shift;
   int Force_SignalOpenMethod;
@@ -43,6 +44,7 @@ struct Stg_Force_Params : Stg_Params {
   // Constructor: Set default param values.
   Stg_Force_Params()
       : Force_Period(::Force_Period),
+        Force_MA_Method(::Force_MA_Method),
         Force_Applied_Price(::Force_Applied_Price),
         Force_Shift(::Force_Shift),
         Force_SignalOpenMethod(::Force_SignalOpenMethod),
@@ -97,9 +99,9 @@ class Stg_Force : public Strategy {
     }
     // Initialize strategy parameters.
     ChartParams cparams(_tf);
-    Force_Params adx_params(_params.Force_Period, _params.Force_Applied_Price);
-    IndicatorParams adx_iparams(10, INDI_Force);
-    StgParams sparams(new Trade(_tf, _Symbol), new Indi_Force(adx_params, adx_iparams, cparams), NULL, NULL);
+    Force_Params force_params(_params.Force_Period, _params.Force_MA_Method, _params.Force_Applied_Price);
+    IndicatorParams force_iparams(10, INDI_FORCE);
+    StgParams sparams(new Trade(_tf, _Symbol), new Indi_Force(force_params, force_iparams, cparams), NULL, NULL);
     sparams.logger.SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.Force_SignalOpenMethod, _params.Force_SignalOpenLevel, _params.Force_SignalCloseMethod,
@@ -119,23 +121,21 @@ class Stg_Force : public Strategy {
    *   _cmd (int) - type of trade order command
    *   period (int) - period to check for
    *   _method (int) - signal method to use by using bitwise AND operation
-   *   _level1 (double) - signal level to consider the signal
+   *   _level (double) - signal level to consider the signal
    */
   bool SignalOpen(ENUM_ORDER_TYPE _cmd, int _method = 0, double _level = 0.0) {
     bool _result = false;
     double force_0 = ((Indi_Force *)this.Data()).GetValue(0);
     double force_1 = ((Indi_Force *)this.Data()).GetValue(1);
     double force_2 = ((Indi_Force *)this.Data()).GetValue(2);
-    if (_level1 == EMPTY) _level1 = GetSignalLevel1();
-    if (_level2 == EMPTY) _level2 = GetSignalLevel2();
     switch (_cmd) {
       case ORDER_TYPE_BUY:
         // FI recommends to buy (i.e. FI<0).
-        _result = force_0 < -_level1;
+        _result = force_0 < -_level;
         break;
       case ORDER_TYPE_SELL:
         // FI recommends to sell (i.e. FI>0).
-        _result = force_0 > _level1;
+        _result = force_0 > _level;
         break;
     }
     return _result;

@@ -10,6 +10,7 @@ struct Stg_Force_EURUSD_H1_Params : Stg_Force_Params {
     symbol = "EURUSD";
     tf = PERIOD_H1;
     Force_Period = 2;
+    Force_MA_Method = 0;
     Force_Applied_Price = 3;
     Force_Shift = 0;
     Force_SignalOpenMethod = 0;
