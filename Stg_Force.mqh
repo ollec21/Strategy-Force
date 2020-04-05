@@ -90,6 +90,7 @@ class Stg_Force : public Strategy {
     sparams.SetSignals(_params.Force_SignalOpenMethod, _params.Force_SignalOpenLevel, _params.Force_SignalCloseMethod,
                        _params.Force_SignalOpenFilterMethod, _params.Force_SignalOpenBoostMethod,
                        _params.Force_SignalCloseLevel);
+    sparams.SetPriceLimits(_params.Force_PriceLimitMethod, _params.Force_PriceLimitLevel);
     sparams.SetMaxSpread(_params.Force_MaxSpread);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_Force(sparams, "Force");
