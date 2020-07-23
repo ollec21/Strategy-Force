@@ -85,7 +85,7 @@ class Stg_Force : public Strategy {
     ForceParams force_params(_params.Force_Period, _params.Force_MA_Method, _params.Force_Applied_Price);
     force_params.SetTf(_tf);
     StgParams sparams(new Trade(_tf, _Symbol), new Indi_Force(force_params), NULL, NULL);
-    sparams.logger.SetLevel(_log_level);
+    sparams.logger.Ptr().SetLevel(_log_level);
     sparams.SetMagicNo(_magic_no);
     sparams.SetSignals(_params.Force_SignalOpenMethod, _params.Force_SignalOpenLevel, _params.Force_SignalCloseMethod,
                        _params.Force_SignalOpenFilterMethod, _params.Force_SignalOpenBoostMethod,
