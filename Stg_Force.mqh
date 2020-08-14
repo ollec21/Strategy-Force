@@ -9,14 +9,14 @@ INPUT ENUM_MA_METHOD Force_MA_Method = 0;          // MA Method
 INPUT ENUM_APPLIED_PRICE Force_Applied_Price = 2;  // Applied Price
 INPUT int Force_Shift = 1;                         // Shift (relative to the current bar, 0 - default)
 INPUT int Force_SignalOpenMethod = 0;              // Signal open method (0-
-INPUT float Force_SignalOpenLevel = 0;            // Signal open level
+INPUT float Force_SignalOpenLevel = 0;             // Signal open level
 INPUT int Force_SignalOpenFilterMethod = 0;        // Signal open filter method
 INPUT int Force_SignalOpenBoostMethod = 0;         // Signal open boost method
 INPUT int Force_SignalCloseMethod = 0;             // Signal close method (0-
-INPUT float Force_SignalCloseLevel = 0;           // Signal close level
+INPUT float Force_SignalCloseLevel = 0;            // Signal close level
 INPUT int Force_PriceLimitMethod = 0;              // Price limit method
-INPUT float Force_PriceLimitLevel = 0;            // Price limit level
-INPUT float Force_MaxSpread = 6.0;                // Max spread to trade (pips)
+INPUT float Force_PriceLimitLevel = 0;             // Price limit level
+INPUT float Force_MaxSpread = 6.0;                 // Max spread to trade (pips)
 
 // Includes.
 #include <EA31337-classes/Indicators/Indi_Force.mqh>
@@ -29,14 +29,14 @@ struct Stg_Force_Params : StgParams {
   ENUM_APPLIED_PRICE Force_Applied_Price;
   int Force_Shift;
   int Force_SignalOpenMethod;
-  double Force_SignalOpenLevel;
+  float Force_SignalOpenLevel;
   int Force_SignalOpenFilterMethod;
   int Force_SignalOpenBoostMethod;
   int Force_SignalCloseMethod;
-  double Force_SignalCloseLevel;
+  float Force_SignalCloseLevel;
   int Force_PriceLimitMethod;
-  double Force_PriceLimitLevel;
-  double Force_MaxSpread;
+  float Force_PriceLimitLevel;
+  float Force_MaxSpread;
 
   // Constructor: Set default param values.
   Stg_Force_Params()
@@ -169,6 +169,6 @@ class Stg_Force : public Strategy {
         break;
       }
     }
-    return _result;
+    return (float)_result;
   }
 };
