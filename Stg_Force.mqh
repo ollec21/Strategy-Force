@@ -3,61 +3,68 @@
  * Implements Force strategy for the Force Index indicator.
  */
 
-// User input params.
-INPUT int Force_Period = 38;                       // Period
-INPUT ENUM_MA_METHOD Force_MA_Method = 0;          // MA Method
-INPUT ENUM_APPLIED_PRICE Force_Applied_Price = 2;  // Applied Price
-INPUT int Force_Shift = 1;                         // Shift (relative to the current bar, 0 - default)
-INPUT int Force_SignalOpenMethod = 0;              // Signal open method (0-
-INPUT float Force_SignalOpenLevel = 0;             // Signal open level
-INPUT int Force_SignalOpenFilterMethod = 0;        // Signal open filter method
-INPUT int Force_SignalOpenBoostMethod = 0;         // Signal open boost method
-INPUT int Force_SignalCloseMethod = 0;             // Signal close method (0-
-INPUT float Force_SignalCloseLevel = 0;            // Signal close level
-INPUT int Force_PriceLimitMethod = 0;              // Price limit method
-INPUT float Force_PriceLimitLevel = 0;             // Price limit level
-INPUT float Force_MaxSpread = 6.0;                 // Max spread to trade (pips)
-
 // Includes.
 #include <EA31337-classes/Indicators/Indi_Force.mqh>
 #include <EA31337-classes/Strategy.mqh>
 
+// User input params.
+INPUT float Force_LotSize = 0;               // Lot size
+INPUT int Force_SignalOpenMethod = 0;        // Signal open method (0-
+INPUT float Force_SignalOpenLevel = 0;       // Signal open level
+INPUT int Force_SignalOpenFilterMethod = 0;  // Signal open filter method
+INPUT int Force_SignalOpenBoostMethod = 0;   // Signal open boost method
+INPUT int Force_SignalCloseMethod = 0;       // Signal close method (0-
+INPUT float Force_SignalCloseLevel = 0;      // Signal close level
+INPUT int Force_PriceLimitMethod = 0;        // Price limit method
+INPUT float Force_PriceLimitLevel = 0;       // Price limit level
+INPUT int Force_TickFilterMethod = 0;        // Tick filter method
+INPUT float Force_MaxSpread = 6.0;           // Max spread to trade (pips)
+INPUT int Force_Shift = 1;                   // Shift (relative to the current bar, 0 - default)
+INPUT string __Force_Indi_Force_Parameters__ =
+    "-- Force strategy: Force indicator params --";     // >>> Force strategy: Force indicator <<<
+INPUT int Indi_Force_Period = 38;                       // Period
+INPUT ENUM_MA_METHOD Indi_Force_MA_Method = 0;          // MA Method
+INPUT ENUM_APPLIED_PRICE Indi_Force_Applied_Price = 2;  // Applied Price
+
+// Structs.
+
+// Defines struct with default user indicator values.
+struct Indi_Force_Params_Defaults : ForceParams {
+  Indi_Force_Params_Defaults() : ForceParams(::Indi_Force_Period, ::Indi_Force_MA_Method, ::Indi_Force_Applied_Price) {}
+} indi_force_defaults;
+
+// Defines struct to store indicator parameter values.
+struct Indi_Force_Params : public ForceParams {
+  // Struct constructors.
+  void Indi_Force_Params(ForceParams &_params, ENUM_TIMEFRAMES _tf) : ForceParams(_params, _tf) {}
+};
+
+// Defines struct with default user strategy values.
+struct Stg_Force_Params_Defaults : StgParams {
+  Stg_Force_Params_Defaults()
+      : StgParams(::Force_SignalOpenMethod, ::Force_SignalOpenFilterMethod, ::Force_SignalOpenLevel,
+                  ::Force_SignalOpenBoostMethod, ::Force_SignalCloseMethod, ::Force_SignalCloseLevel,
+                  ::Force_PriceLimitMethod, ::Force_PriceLimitLevel, ::Force_TickFilterMethod, ::Force_MaxSpread,
+                  ::Force_Shift) {}
+} stg_force_defaults;
+
 // Struct to define strategy parameters to override.
 struct Stg_Force_Params : StgParams {
-  unsigned int Force_Period;
-  ENUM_MA_METHOD Force_MA_Method;
-  ENUM_APPLIED_PRICE Force_Applied_Price;
-  int Force_Shift;
-  int Force_SignalOpenMethod;
-  float Force_SignalOpenLevel;
-  int Force_SignalOpenFilterMethod;
-  int Force_SignalOpenBoostMethod;
-  int Force_SignalCloseMethod;
-  float Force_SignalCloseLevel;
-  int Force_PriceLimitMethod;
-  float Force_PriceLimitLevel;
-  float Force_MaxSpread;
+  Indi_Force_Params iparams;
+  StgParams sparams;
 
-  // Constructor: Set default param values.
-  Stg_Force_Params()
-      : Force_Period(::Force_Period),
-        Force_MA_Method(::Force_MA_Method),
-        Force_Applied_Price(::Force_Applied_Price),
-        Force_Shift(::Force_Shift),
-        Force_SignalOpenMethod(::Force_SignalOpenMethod),
-        Force_SignalOpenLevel(::Force_SignalOpenLevel),
-        Force_SignalOpenFilterMethod(::Force_SignalOpenFilterMethod),
-        Force_SignalOpenBoostMethod(::Force_SignalOpenBoostMethod),
-        Force_SignalCloseMethod(::Force_SignalCloseMethod),
-        Force_SignalCloseLevel(::Force_SignalCloseLevel),
-        Force_PriceLimitMethod(::Force_PriceLimitMethod),
-        Force_PriceLimitLevel(::Force_PriceLimitLevel),
-        Force_MaxSpread(::Force_MaxSpread) {}
+  // Struct constructors.
+  Stg_Force_Params(Indi_Force_Params &_iparams, StgParams &_sparams)
+      : iparams(indi_force_defaults, _iparams.tf), sparams(stg_force_defaults) {
+    iparams = _iparams;
+    sparams = _sparams;
+  }
 };
 
 // Loads pair specific param values.
 #include "sets/EURUSD_H1.h"
 #include "sets/EURUSD_H4.h"
+#include "sets/EURUSD_H8.h"
 #include "sets/EURUSD_M1.h"
 #include "sets/EURUSD_M15.h"
 #include "sets/EURUSD_M30.h"
@@ -69,24 +76,24 @@ class Stg_Force : public Strategy {
 
   static Stg_Force *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
-    Stg_Force_Params _params;
+    Indi_Force_Params _indi_params(indi_force_defaults, _tf);
+    StgParams _stg_params(stg_force_defaults);
     if (!Terminal::IsOptimization()) {
-      SetParamsByTf<Stg_Force_Params>(_params, _tf, stg_force_m1, stg_force_m5, stg_force_m15, stg_force_m30,
-                                      stg_force_h1, stg_force_h4, stg_force_h4);
+      SetParamsByTf<Indi_Force_Params>(_indi_params, _tf, indi_force_m1, indi_force_m5, indi_force_m15, indi_force_m30,
+                                       indi_force_h1, indi_force_h4, indi_force_h8);
+      SetParamsByTf<StgParams>(_stg_params, _tf, stg_force_m1, stg_force_m5, stg_force_m15, stg_force_m30, stg_force_h1,
+                               stg_force_h4, stg_force_h8);
     }
+    // Initialize indicator.
+    ForceParams force_params(_indi_params);
+    _stg_params.SetIndicator(new Indi_Force(_indi_params));
     // Initialize strategy parameters.
-    ForceParams force_params(_params.Force_Period, _params.Force_MA_Method, _params.Force_Applied_Price);
-    force_params.SetTf(_tf);
-    StgParams sparams(new Trade(_tf, _Symbol), new Indi_Force(force_params), NULL, NULL);
-    sparams.logger.Ptr().SetLevel(_log_level);
-    sparams.SetMagicNo(_magic_no);
-    sparams.SetSignals(_params.Force_SignalOpenMethod, _params.Force_SignalOpenLevel, _params.Force_SignalCloseMethod,
-                       _params.Force_SignalOpenFilterMethod, _params.Force_SignalOpenBoostMethod,
-                       _params.Force_SignalCloseLevel);
-    sparams.SetPriceLimits(_params.Force_PriceLimitMethod, _params.Force_PriceLimitLevel);
-    sparams.SetMaxSpread(_params.Force_MaxSpread);
+    _stg_params.GetLog().SetLevel(_log_level);
+    _stg_params.SetMagicNo(_magic_no);
+    _stg_params.SetTf(_tf, _Symbol);
     // Initialize strategy instance.
-    Strategy *_strat = new Stg_Force(sparams, "Force");
+    Strategy *_strat = new Stg_Force(_stg_params, "Force");
+    _stg_params.SetStops(_strat, _strat);
     return _strat;
   }
 
@@ -157,15 +164,15 @@ class Stg_Force : public Strategy {
     double _result = _default_value;
     switch (_method) {
       case 0: {
-        int _bar_count = (int)_level * (int)_indi.GetPeriod();
-        _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count))
-                                 : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count));
+        int _bar_count1 = (int)_level * (int)_indi.GetPeriod();
+        _result = _direction > 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count1))
+                                 : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count1));
         break;
       }
       case 1: {
-        int _bar_count = (int)_level * (int)_indi.GetPeriod();
-        _result = _direction < 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count))
-                                 : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count));
+        int _bar_count2 = (int)_level * (int)_indi.GetPeriod();
+        _result = _direction < 0 ? _indi.GetPrice(PRICE_HIGH, _indi.GetHighest(_bar_count2))
+                                 : _indi.GetPrice(PRICE_LOW, _indi.GetLowest(_bar_count2));
         break;
       }
     }
