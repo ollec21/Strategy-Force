@@ -15,8 +15,8 @@ INPUT int Force_SignalOpenFilterMethod = 0;  // Signal open filter method
 INPUT int Force_SignalOpenBoostMethod = 0;   // Signal open boost method
 INPUT int Force_SignalCloseMethod = 0;       // Signal close method (0-
 INPUT float Force_SignalCloseLevel = 0;      // Signal close level
-INPUT int Force_PriceLimitMethod = 0;        // Price limit method
-INPUT float Force_PriceLimitLevel = 0;       // Price limit level
+INPUT int Force_PriceStopMethod = 0;         // Price stop method
+INPUT float Force_PriceStopLevel = 0;        // Price stop level
 INPUT int Force_TickFilterMethod = 0;        // Tick filter method
 INPUT float Force_MaxSpread = 6.0;           // Max spread to trade (pips)
 INPUT int Force_Shift = 1;                   // Shift (relative to the current bar, 0 - default)
@@ -44,7 +44,7 @@ struct Stg_Force_Params_Defaults : StgParams {
   Stg_Force_Params_Defaults()
       : StgParams(::Force_SignalOpenMethod, ::Force_SignalOpenFilterMethod, ::Force_SignalOpenLevel,
                   ::Force_SignalOpenBoostMethod, ::Force_SignalCloseMethod, ::Force_SignalCloseLevel,
-                  ::Force_PriceLimitMethod, ::Force_PriceLimitLevel, ::Force_TickFilterMethod, ::Force_MaxSpread,
+                  ::Force_PriceStopMethod, ::Force_PriceStopLevel, ::Force_TickFilterMethod, ::Force_MaxSpread,
                   ::Force_Shift) {}
 } stg_force_defaults;
 
@@ -153,9 +153,9 @@ class Stg_Force : public Strategy {
   }
 
   /**
-   * Gets price limit value for profit take or stop loss.
+   * Gets price stop value for profit take or stop loss.
    */
-  float PriceLimit(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
+  float PriceStop(ENUM_ORDER_TYPE _cmd, ENUM_ORDER_TYPE_VALUE _mode, int _method = 0, float _level = 0.0) {
     Indi_Force *_indi = Data();
     double level = _level * Chart().GetPipSize();
     double _trail = _level * Market().GetPipSize();
