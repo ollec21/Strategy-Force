@@ -3,10 +3,6 @@
  * Implements Force strategy for the Force Index indicator.
  */
 
-// Includes.
-#include <EA31337-classes/Indicators/Indi_Force.mqh>
-#include <EA31337-classes/Strategy.mqh>
-
 // User input params.
 INPUT float Force_LotSize = 0;               // Lot size
 INPUT int Force_SignalOpenMethod = 0;        // Signal open method (0-
