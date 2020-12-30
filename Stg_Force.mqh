@@ -16,6 +16,7 @@ INPUT float Force_PriceStopLevel = 0;        // Price stop level
 INPUT int Force_TickFilterMethod = 0;        // Tick filter method
 INPUT float Force_MaxSpread = 6.0;           // Max spread to trade (pips)
 INPUT int Force_Shift = 1;                   // Shift (relative to the current bar, 0 - default)
+INPUT int Force_OrderCloseTime = -10;        // Order close time in mins (>0) or bars (<0)
 INPUT string __Force_Indi_Force_Parameters__ =
     "-- Force strategy: Force indicator params --";     // >>> Force strategy: Force indicator <<<
 INPUT int Indi_Force_Period = 38;                       // Period
@@ -41,7 +42,7 @@ struct Stg_Force_Params_Defaults : StgParams {
       : StgParams(::Force_SignalOpenMethod, ::Force_SignalOpenFilterMethod, ::Force_SignalOpenLevel,
                   ::Force_SignalOpenBoostMethod, ::Force_SignalCloseMethod, ::Force_SignalCloseLevel,
                   ::Force_PriceStopMethod, ::Force_PriceStopLevel, ::Force_TickFilterMethod, ::Force_MaxSpread,
-                  ::Force_Shift) {}
+                  ::Force_Shift, ::Force_OrderCloseTime) {}
 } stg_force_defaults;
 
 // Struct to define strategy parameters to override.
