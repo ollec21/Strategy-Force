@@ -128,7 +128,7 @@ class Stg_Force : public Strategy {
         case ORDER_TYPE_SELL:
           // FI recommends to sell (i.e. FI>0).
           _result = _indi[CURR][0] > 0 && _indi.IsDecreasing(3);
-          _result &= _indi.IsDecByPct(_level, 0, 0, 2);
+          _result &= _indi.IsDecByPct(-_level, 0, 0, 2);
           if (_result && _method != 0) {
             // When histogram is below zero level, but with the rays pointing upwards (upward trend),
             // then we can assume that, in spite of still bearish sentiment in the market, their strength begins to
