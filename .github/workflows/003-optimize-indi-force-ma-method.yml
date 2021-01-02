@@ -26,8 +26,8 @@ jobs:
         with:
           include: .
           init-platform: true
-          mt-vebandson: 5.0.0.2361
-          path: Stg_Bands.mq4
+          mt-version: 5.0.0.2361
+          path: Stg_Force.mq4
           verbose: true
       - name: Copy Math includes
         run: Copy-Item -Recurse ../MetaTrader/MQL5/Include/Math Include/
@@ -35,23 +35,30 @@ jobs:
         uses: fx31337/mql-compile-action@master
         with:
           include: .
-          mt-vebandson: 5.0.0.2515
-          path: Stg_Bands.mq5
+          mt-version: 5.0.0.2515
+          path: Stg_Force.mq5
           verbose: true
       - name: List compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
       - run: Get-Location
-      - name: Upload artifacts
+      - name: Upload EA
         uses: actions/upload-artifact@v2
         with:
           name: EA
           path: '*.ex?'
-      - name: Upload artifacts
+      - name: Upload configs
+        uses: actions/upload-artifact@v2
+        with:
+          name: config
+          path: 'config/*.h'
+      - name: Upload sets
         uses: actions/upload-artifact@v2
         with:
           name: sets
           path: 'sets/optimize/*.set'
   Optimize:
+    env:
+      SET_FILE: Indi_Force_MA_Method.set
     needs: Compile
     runs-on: ubuntu-latest
     strategy:
@@ -65,8 +72,21 @@ jobs:
           path: EA
       - uses: actions/download-artifact@v2
         with:
+          name: config
+          path: config
+      - uses: actions/download-artifact@v2
+        with:
           name: sets
           path: sets
+      - name: Install Jinja2 CLI
+        run: pip3 install jinja2-cli && pip3 show -f jinja2-cli
+      - name: Process template
+        run: |
+          jinja2 --format=env \
+          "sets/${{ env.SET_FILE }}.j2" -o "sets/${{ env.SET_FILE }}" \
+          < <(grep -w = config/${{ matrix.pair }}_${{ matrix.tf }}.h \
+          | sed -e 's/[; ]*//g')
+        shell: bash -xe {0}
       - name: Read timeframe
         id: tf
         run: |
@@ -86,8 +106,8 @@ jobs:
           OptFormatJson: true
           OptOptimize: true
           OptVerbose: true
-          SetFile: ${{ github.workspace }}/sets/Indi_Force_MA_Method.set
-          TestExpert: "Stg_Bands"
+          SetFile: ${{ github.workspace }}/sets/${{ env.SET_FILE }}
+          TestExpert: "Stg_Force"
           TestPeriod: ${{ matrix.tf }}
           TestReportName: Report-${{ matrix.pair }}-${{ matrix.tf }}
       - name: Upload result files
@@ -174,7 +194,6 @@ jobs:
         with:
           branch: dev-optimize-${{ env.PF }}pf-${{ env.DD }}dd-${{ env.TT }}tt
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          force: true
       - name: Re-pull on failure
         if: ${{ failure() }}
         run: git pull origin ${{ github.ref }} --autostash --rebase -X ours
