@@ -6,7 +6,7 @@
 // Defines indicator's parameter values for the given pair symbol and timeframe.
 struct Indi_Force_Params_M30 : Indi_Force_Params {
   Indi_Force_Params_M30() : Indi_Force_Params(indi_force_defaults, PERIOD_M30) {
-    ma_method = 0;
+    ma_method = 3;
     period = 14;
     shift = 0;
   }
