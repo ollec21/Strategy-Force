@@ -17,7 +17,7 @@ struct Stg_Force_Params_M15 : StgParams {
   // Struct constructor.
   Stg_Force_Params_M15() : StgParams(stg_force_defaults) {
     lot_size = 0;
-    signal_open_method = 0;
+    signal_open_method = 2;
     signal_open_filter = 1;
     signal_open_level = 1;
     signal_open_boost = 0;
