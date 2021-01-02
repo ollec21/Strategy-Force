@@ -29,8 +29,6 @@ jobs:
           mt-version: 5.0.0.2361
           path: Stg_Force.mq4
           verbose: true
-      - name: Copy Math includes
-        run: Copy-Item -Recurse ../MetaTrader/MQL5/Include/Math Include/
       - name: Compile for MQL5
         uses: fx31337/mql-compile-action@master
         with:
@@ -41,17 +39,24 @@ jobs:
       - name: List compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
       - run: Get-Location
-      - name: Upload artifacts
+      - name: Upload EA
         uses: actions/upload-artifact@v2
         with:
           name: EA
           path: '*.ex?'
-      - name: Upload artifacts
+      - name: Upload config
+        uses: actions/upload-artifact@v2
+        with:
+          name: config
+          path: 'config/*.h'
+      - name: Upload sets
         uses: actions/upload-artifact@v2
         with:
           name: sets
-          path: 'sets/optimize/*.set'
+          path: 'sets/optimize/*.*'
   Optimize:
+    env:
+      SET_FILE: Indi_Force_Applied_Price.set
     needs: Compile
     runs-on: ubuntu-latest
     strategy:
@@ -61,12 +66,17 @@ jobs:
     steps:
       - uses: actions/download-artifact@v2
         with:
-          name: EA
-          path: EA
-      - uses: actions/download-artifact@v2
+          path: .
+      - name: Generate env file
+        run: >-
+          grep -w = config/${{ matrix.pair }}_${{ matrix.tf }}.h
+          | sed -e 's/[; ]*//g' > sets/.env
+      - uses: cuchi/jinja2-action@v1.2.0
         with:
-          name: sets
-          path: sets
+          template: sets/${{ env.SET_FILE }}.j2
+          output_file: sets/${{ env.SET_FILE }}
+          data_file: sets/.env
+          data_format: env
       - name: Read timeframe
         id: tf
         run: |
@@ -75,6 +85,8 @@ jobs:
         shell: python
       - name: Sets timeframe
         run: echo Active_Tfs=${{ steps.tf.outputs.tf }} | tee -a sets/*.set
+      - name: Display SET file
+        run: cat sets/${{ env.SET_FILE }}
       - uses: ea31337/mql-tester-action@master
         with:
           BtDeposit: 100000
@@ -86,7 +98,7 @@ jobs:
           OptFormatJson: true
           OptOptimize: true
           OptVerbose: true
-          SetFile: ${{ github.workspace }}/sets/Indi_Force_Applied_Price.set
+          SetFile: ${{ github.workspace }}/sets/${{ env.SET_FILE }}
           TestExpert: "Stg_Force"
           TestPeriod: ${{ matrix.tf }}
           TestReportName: Report-${{ matrix.pair }}-${{ matrix.tf }}
@@ -111,10 +123,10 @@ jobs:
       - name: Update config file
         env:
           KEY: applied_price
-        run: |
-          ex -u NONE -V1 \
-            +"%s@\\<$KEY[^=]\\?=\\s\\?[^-.0-9]\\+\\zs[^;$]\\+@${!pname}@" \
-            -scwq! ./config/${{ matrix.pair }}_${{ matrix.tf }}.h
+        run: >-
+          ex -u NONE -V1
+          +"%s@\\<$KEY[^=]\\?=\\s\\?[^-.0-9]\\+\\zs[^;$]\\+@${!pname}@"
+          -scwq! ./config/${{ matrix.pair }}_${{ matrix.tf }}.h
       - name: Upload updated config file
         uses: actions/upload-artifact@v2
         with:
