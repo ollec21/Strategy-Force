@@ -29,15 +29,6 @@ jobs:
           mt-version: 5.0.0.2361
           path: Stg_Force.mq4
           verbose: true
-      - name: Copy Math includes
-        run: Copy-Item -Recurse ../MetaTrader/MQL5/Include/Math Include/
-      - name: Compile for MQL5
-        uses: fx31337/mql-compile-action@master
-        with:
-          include: .
-          mt-version: 5.0.0.2515
-          path: Stg_Force.mq5
-          verbose: true
       - name: List compiled files
         run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
       - run: Get-Location
@@ -55,7 +46,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: sets
-          path: 'sets/optimize/*.set'
+          path: 'sets/optimize/*.*'
   Optimize:
     env:
       SET_FILE: Indi_Force_MA_Method.set
@@ -78,15 +69,14 @@ jobs:
         with:
           name: sets
           path: sets
-      - name: Install Jinja2 CLI
-        run: pip3 install jinja2-cli && pip3 show -f jinja2-cli
-      - name: Process template
-        run: |
-          jinja2 --format=env \
-          "sets/${{ env.SET_FILE }}.j2" -o "sets/${{ env.SET_FILE }}" \
-          < <(grep -w = config/${{ matrix.pair }}_${{ matrix.tf }}.h \
-          | sed -e 's/[; ]*//g')
-        shell: bash -xe {0}
+      - name: Generate env file
+        run: grep -w = config/${{ matrix.pair }}_${{ matrix.tf }}.h > sets/.env
+      - uses: cuchi/jinja2-action@v1.2.0
+        with:
+          template: sets/${{ env.SET_FILE }}.j2
+          output_file: sets/${{ env.SET_FILE }}
+          data_file: sets/.env
+          data_format: env
       - name: Read timeframe
         id: tf
         run: |
