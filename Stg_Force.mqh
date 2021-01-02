@@ -18,16 +18,17 @@ INPUT float Force_MaxSpread = 4.0;           // Max spread to trade (pips)
 INPUT int Force_Shift = 1;                   // Shift (relative to the current bar, 0 - default)
 INPUT int Force_OrderCloseTime = -20;        // Order close time in mins (>0) or bars (<0)
 INPUT string __Force_Indi_Force_Parameters__ =
-    "-- Force strategy: Force indicator params --";     // >>> Force strategy: Force indicator <<<
-INPUT int Indi_Force_Period = 38;                       // Period
-INPUT ENUM_MA_METHOD Indi_Force_MA_Method = 0;          // MA Method
-INPUT ENUM_APPLIED_PRICE Indi_Force_Applied_Price = 2;  // Applied Price
+    "-- Force strategy: Force indicator params --";           // >>> Force strategy: Force indicator <<<
+INPUT int Force_Indi_Force_Period = 38;                       // Period
+INPUT ENUM_MA_METHOD Force_Indi_Force_MA_Method = 0;          // MA Method
+INPUT ENUM_APPLIED_PRICE Force_Indi_Force_Applied_Price = 2;  // Applied Price
 
 // Structs.
 
 // Defines struct with default user indicator values.
 struct Indi_Force_Params_Defaults : ForceParams {
-  Indi_Force_Params_Defaults() : ForceParams(::Indi_Force_Period, ::Indi_Force_MA_Method, ::Indi_Force_Applied_Price) {}
+  Indi_Force_Params_Defaults()
+      : ForceParams(::Force_Indi_Force_Period, ::Force_Indi_Force_MA_Method, ::Force_Indi_Force_Applied_Price) {}
 } indi_force_defaults;
 
 // Defines struct to store indicator parameter values.
@@ -109,32 +110,35 @@ class Stg_Force : public Strategy {
     Indi_Force *_indi = Data();
     bool _is_valid = _indi[CURR].IsValid() && _indi[PREV].IsValid() && _indi[PPREV].IsValid();
     bool _result = _is_valid;
-    if (!_result) {
-      // Returns false when indicator data is not valid.
-      return false;
-    }
-    double level = _level * Chart().GetPipSize();
-    switch (_cmd) {
-      case ORDER_TYPE_BUY:
-        // FI recommends to buy (i.e. FI<0).
-        _result = _indi[CURR][0] < -_level;
-        if (METHOD(_method, 0)) _result &= _indi[PREV][0] < _indi[PPREV][0];  // ... 2 consecutive columns are red.
-        if (METHOD(_method, 1)) _result &= _indi[PPREV][0] < _indi[3][0];     // ... 3 consecutive columns are red.
-        if (METHOD(_method, 2)) _result &= _indi[3][0] < _indi[4][0];         // ... 4 consecutive columns are red.
-        if (METHOD(_method, 3)) _result &= _indi[PREV][0] > _indi[PPREV][0];  // ... 2 consecutive columns are green.
-        if (METHOD(_method, 4)) _result &= _indi[PPREV][0] > _indi[3][0];     // ... 3 consecutive columns are green.
-        if (METHOD(_method, 5)) _result &= _indi[3][0] < _indi[4][0];         // ... 4 consecutive columns are green.
-        break;
-      case ORDER_TYPE_SELL:
-        // FI recommends to sell (i.e. FI>0).
-        _result = _indi[CURR][0] > _level;
-        if (METHOD(_method, 0)) _result &= _indi[PREV][0] < _indi[PPREV][0];  // ... 2 consecutive columns are red.
-        if (METHOD(_method, 1)) _result &= _indi[PPREV][0] < _indi[3][0];     // ... 3 consecutive columns are red.
-        if (METHOD(_method, 2)) _result &= _indi[3][0] < _indi[4][0];         // ... 4 consecutive columns are red.
-        if (METHOD(_method, 3)) _result &= _indi[PREV][0] > _indi[PPREV][0];  // ... 2 consecutive columns are green.
-        if (METHOD(_method, 4)) _result &= _indi[PPREV][0] > _indi[3][0];     // ... 3 consecutive columns are green.
-        if (METHOD(_method, 5)) _result &= _indi[3][0] < _indi[4][0];         // ... 4 consecutive columns are green.
-        break;
+    if (_is_valid) {
+      switch (_cmd) {
+        case ORDER_TYPE_BUY:
+          // FI recommends to buy (i.e. FI<0).
+          _result = _indi[CURR][0] < 0 && _indi.IsIncreasing(3);
+          _result &= _indi.IsIncByPct(_level, 0, 0, 2);
+          // Signal: Changing from negative values to positive.
+          if (_result && _method != 0) {
+            if (METHOD(_method, 0)) _result &= _indi.IsIncreasing(2, 0, 3);
+            if (METHOD(_method, 1)) _result &= _indi.IsIncreasing(2, 0, 5);
+            // When histogram passes through zero level from bottom up,
+            // bears have lost control over the market and bulls increase pressure.
+            if (METHOD(_method, 2)) _result &= _indi[PPREV][0] > 0;
+          }
+          break;
+        case ORDER_TYPE_SELL:
+          // FI recommends to sell (i.e. FI>0).
+          _result = _indi[CURR][0] > 0 && _indi.IsDecreasing(3);
+          _result &= _indi.IsDecByPct(_level, 0, 0, 2);
+          if (_result && _method != 0) {
+            // When histogram is below zero level, but with the rays pointing upwards (upward trend),
+            // then we can assume that, in spite of still bearish sentiment in the market, their strength begins to
+            // weaken.
+            if (METHOD(_method, 0)) _result &= _indi.IsDecreasing(2, 0, 3);
+            if (METHOD(_method, 1)) _result &= _indi.IsDecreasing(2, 0, 5);
+            if (METHOD(_method, 2)) _result &= _indi[PPREV][0] < 0;
+          }
+          break;
+      }
     }
     return _result;
   }
