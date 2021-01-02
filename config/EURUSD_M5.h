@@ -7,7 +7,7 @@
 struct Indi_Force_Params_M5 : Indi_Force_Params {
   Indi_Force_Params_M5() : Indi_Force_Params(indi_force_defaults, PERIOD_M5) {
     ma_method = 0;
-    period = 14;
+    period = 24;
     shift = 0;
   }
 } indi_force_m5;
