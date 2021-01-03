@@ -96,14 +96,20 @@ jobs:
           output_file: sets/${{ matrix.setfile }}
           data_file: sets/.env
           data_format: env
-      - name: Read timeframe
-        id: tf
+      - name: Sets input data
+        id: data
         run: |
           tfs = {"M1":1, "M5":2, "M15":4, "M30":8, "H1":16, "H4":32, "H8":64}
           print("::set-output name=tf::{}".format(tfs.get("${{ matrix.tf }}")))
+          setfile = "sets/${{ matrix.setfile }}"
+          for line in open(setfile, "r").readlines():
+            if line.strip().endswith(",F=1"):
+              print("::set-output name=param::{}"
+                .format(line.strip().replace(",F=1", "")))
+              break
         shell: python
       - name: Sets timeframe
-        run: echo Active_Tfs=${{ steps.tf.outputs.tf }} | tee -a sets/*.set
+        run: echo Active_Tfs=${{ steps.data.outputs.tf }} | tee -a sets/*.set
       - name: Display SET file
         run: cat sets/${{ matrix.setfile }}
       - uses: ea31337/mql-tester-action@master
@@ -118,6 +124,7 @@ jobs:
           OptOptimize: true
           OptVerbose: true
           SetFile: ${{ github.workspace }}/sets/${{ matrix.setfile }}
+          SetParams: ${{ steps.data.outputs.param }}
           TestExpert: "Stg_Force"
           TestPeriod: ${{ matrix.tf }}
           TestReportName: Report-${{ matrix.pair }}-${{ matrix.tf }}
