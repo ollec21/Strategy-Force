@@ -78,7 +78,7 @@ jobs:
       matrix:
         pair: [EURUSD]
         setfile: ${{ fromJson(needs.Process.outputs.sets-list) }}
-        tf: [M1]
+        tf: [M1, M5, M15, M30]
       max-parallel: 4
     steps:
       - run: echo ${{ matrix.setfile }}
@@ -110,7 +110,6 @@ jobs:
         with:
           BtDeposit: 100000
           BtDest: ${{ github.workspace }}/_results
-          BtDays: 11-12
           BtMonths: 11-12
           BtPair: ${{ matrix.pair }}
           BtYears: 2019
