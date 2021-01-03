@@ -1,0 +1,32 @@
+---
+name: Optimize Indicator params
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches:
+      - 'optimize-indi'
+
+jobs:
+  Process:
+    outputs:
+      sets-list: ${{ steps.get-sets.outputs.sets }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name:
+        id: get-sets
+        run: |
+          sets=$(find sets/optimize/*.set -print)
+          json='[1, 2, 3]'
+          echo "::set-output name=sets::$json"
+      - run: echo ${{ steps.get-sets.outputs.sets }}
+  Test:
+    needs: Process
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        setfile: ${{ fromJson(needs.Process.outputs.sets-list) }}
+        tf: [M1, M5]
+    steps:
+      - run: echo ${{ matrix.setfile }}
