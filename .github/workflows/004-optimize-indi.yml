@@ -15,11 +15,15 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - name:
+        env:
+          SETS_DIR: sets/optimize/indicator
         id: get-sets
         run: |
-          sets=$(find sets/optimize/*.set -print)
-          json='[1, 2, 3]'
-          echo "::set-output name=sets::$json"
+          import glob, json, os
+          os.chdir(os.getenv('SETS_DIR'))
+          files = glob.glob("*.set")
+          print("::set-output name=sets::{}".format(json.dumps(files)))
+        shell: python
       - run: echo ${{ steps.get-sets.outputs.sets }}
   Test:
     needs: Process
