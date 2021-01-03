@@ -47,7 +47,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: config
-          path: 'config/*.h'
+          path: 'config'
       - name: Upload sets
         uses: actions/upload-artifact@v2
         with:
@@ -59,7 +59,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name:
+      - name: Set output with list of sets
         env:
           SETS_DIR: sets/optimize/indicator
         id: get-sets
@@ -69,7 +69,8 @@ jobs:
           files = glob.glob("*.set")
           print("::set-output name=sets::{}".format(json.dumps(files)))
         shell: python
-      - run: echo ${{ steps.get-sets.outputs.sets }}
+      - name: Display output
+        run: echo ${{ steps.get-sets.outputs.sets }}
   Optimize:
     needs: [Compile, Process]
     runs-on: ubuntu-latest
@@ -78,6 +79,7 @@ jobs:
         pair: [EURUSD]
         setfile: ${{ fromJson(needs.Process.outputs.sets-list) }}
         tf: [M1]
+      max-parallel: 4
     steps:
       - run: echo ${{ matrix.setfile }}
       - uses: actions/download-artifact@v2
@@ -87,7 +89,8 @@ jobs:
         run: >-
           grep -w = config/${{ matrix.pair }}_${{ matrix.tf }}.h
           | sed -e 's/[; ]*//g' > sets/.env
-      - uses: cuchi/jinja2-action@v1.2.0
+      - name: Generate SET file from the template file
+        uses: cuchi/jinja2-action@v1.2.0
         with:
           template: sets/${{ matrix.setfile }}.j2
           output_file: sets/${{ matrix.setfile }}
@@ -136,14 +139,19 @@ jobs:
             >> $GITHUB_ENV
           jq -r '"pname="+((."Result params"/";")[0]/"=")[0]' \
             _results/*.json >> $GITHUB_ENV
-      - uses: actions/checkout@v2
-      - name: Update config file
-        env:
-          KEY: period
-        run: >-
-          ex -u NONE -V1
-          +"%s@\\<$KEY[^=]\\?=\\s\\?[^-.0-9]\\+\\zs[^;$]\\+@${!pname}@"
-          -scwq! ./config/${{ matrix.pair }}_${{ matrix.tf }}.h
+      - name: Process SET file
+        run: |
+          echo Timeframe=${{ matrix.tf }} >> sets/${{ matrix.setfile }}
+          cat sets/${{ matrix.setfile }}
+      - name: Generate config file from the SET file
+        uses: cuchi/jinja2-action@v1.2.0
+        with:
+          template: config/template.j2
+          output_file: config/${{ matrix.pair }}_${{ matrix.tf }}.h
+          data_file: sets/${{ matrix.setfile }}
+          data_format: env
+      - name: Display config file
+        run: cat config/${{ matrix.pair }}_${{ matrix.tf }}.h
       - name: Upload updated config file
         uses: actions/upload-artifact@v2
         with:
