@@ -8,6 +8,51 @@ on:
       - 'optimize-indi'
 
 jobs:
+  Compile:
+    defaults:
+      run:
+        shell: powershell
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2
+        with:
+          path: Include/EA31337-classes
+          ref: dev
+          repository: EA31337/EA31337-classes
+      - name: Compile for MQL4
+        uses: fx31337/mql-compile-action@master
+        with:
+          include: .
+          init-platform: true
+          mt-version: 5.0.0.2361
+          path: Stg_Force.mq4
+          verbose: true
+      - name: Compile for MQL5
+        uses: fx31337/mql-compile-action@master
+        with:
+          include: .
+          mt-version: 5.0.0.2515
+          path: Stg_Force.mq5
+          verbose: true
+      - name: List compiled files
+        run: '(Get-ChildItem -Recurse -Path . -Include *.ex[45]).fullname'
+      - run: Get-Location
+      - name: Upload EA
+        uses: actions/upload-artifact@v2
+        with:
+          name: EA
+          path: '*.ex?'
+      - name: Upload config
+        uses: actions/upload-artifact@v2
+        with:
+          name: config
+          path: 'config/*.h'
+      - name: Upload sets
+        uses: actions/upload-artifact@v2
+        with:
+          name: sets
+          path: 'sets/optimize/indicator'
   Process:
     outputs:
       sets-list: ${{ steps.get-sets.outputs.sets }}
@@ -25,12 +70,82 @@ jobs:
           print("::set-output name=sets::{}".format(json.dumps(files)))
         shell: python
       - run: echo ${{ steps.get-sets.outputs.sets }}
-  Test:
-    needs: Process
+  Optimize:
+    needs: [Compile, Process]
     runs-on: ubuntu-latest
     strategy:
       matrix:
+        pair: [EURUSD]
         setfile: ${{ fromJson(needs.Process.outputs.sets-list) }}
-        tf: [M1, M5]
+        tf: [M1]
     steps:
       - run: echo ${{ matrix.setfile }}
+      - uses: actions/download-artifact@v2
+        with:
+          path: .
+      - name: Generate env file
+        run: >-
+          grep -w = config/${{ matrix.pair }}_${{ matrix.tf }}.h
+          | sed -e 's/[; ]*//g' > sets/.env
+      - uses: cuchi/jinja2-action@v1.2.0
+        with:
+          template: sets/${{ matrix.setfile }}.j2
+          output_file: sets/${{ matrix.setfile }}
+          data_file: sets/.env
+          data_format: env
+      - name: Read timeframe
+        id: tf
+        run: |
+          tfs = {"M1":1, "M5":2, "M15":4, "M30":8, "H1":16, "H4":32, "H8":64}
+          print("::set-output name=tf::{}".format(tfs.get("${{ matrix.tf }}")))
+        shell: python
+      - name: Sets timeframe
+        run: echo Active_Tfs=${{ steps.tf.outputs.tf }} | tee -a sets/*.set
+      - name: Display SET file
+        run: cat sets/${{ matrix.setfile }}
+      - uses: ea31337/mql-tester-action@master
+        with:
+          BtDeposit: 100000
+          BtDest: ${{ github.workspace }}/_results
+          BtDays: 11-12
+          BtMonths: 11-12
+          BtPair: ${{ matrix.pair }}
+          BtYears: 2019
+          OptFormatBrief: true
+          OptFormatJson: true
+          OptOptimize: true
+          OptVerbose: true
+          SetFile: ${{ github.workspace }}/sets/${{ matrix.setfile }}
+          TestExpert: "Stg_Force"
+          TestPeriod: ${{ matrix.tf }}
+          TestReportName: Report-${{ matrix.pair }}-${{ matrix.tf }}
+      - name: Upload result files
+        uses: actions/upload-artifact@v2
+        with:
+          name: results
+          path: ./_results/*.*
+      - name: Process results
+        run: |
+          pwd
+          ls
+          jq --version
+          jq . _results/*.json
+          jq -r '(."Result params"/";")[0]' _results/*.json
+          jq -r '((."Result params"/";")[0]/"=")[0]'
+          jq -r '(."Result params"/";")[0]' _results/*.json \
+            >> $GITHUB_ENV
+          jq -r '"pname="+((."Result params"/";")[0]/"=")[0]' \
+            _results/*.json >> $GITHUB_ENV
+      - uses: actions/checkout@v2
+      - name: Update config file
+        env:
+          KEY: period
+        run: >-
+          ex -u NONE -V1
+          +"%s@\\<$KEY[^=]\\?=\\s\\?[^-.0-9]\\+\\zs[^;$]\\+@${!pname}@"
+          -scwq! ./config/${{ matrix.pair }}_${{ matrix.tf }}.h
+      - name: Upload updated config file
+        uses: actions/upload-artifact@v2
+        with:
+          name: config
+          path: ./config/${{ matrix.pair }}_${{ matrix.tf }}.h
