@@ -19,13 +19,13 @@ struct Stg_Force_Params_M15 : StgParams {
   Stg_Force_Params_M15() : StgParams(stg_force_defaults) {
     lot_size = 0;
     signal_open_method = 0;
-    signal_open_filter = 1;
-    signal_open_level = 0;
-    signal_open_boost = 0;
+    signal_open_filter = 2;
+    signal_open_level = 3;
+    signal_open_boost = 1;
     signal_close_method = 0;
     signal_close_level = 0;
     price_stop_method = 0;
-    price_stop_level = 1;
+    price_stop_level = 0;
     tick_filter_method = 1;
     max_spread = 0;
   }
