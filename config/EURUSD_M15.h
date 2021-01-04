@@ -23,9 +23,9 @@ struct Stg_Force_Params_M15 : StgParams {
     signal_open_level = 0;
     signal_open_boost = 0;
     signal_close_method = 0;
-    signal_close_level = 0;
+    signal_close_level = 20;
     price_stop_method = 0;
-    price_stop_level = 1;
+    price_stop_level = 20;
     tick_filter_method = 1;
     max_spread = 0;
   }
