@@ -8,7 +8,7 @@ struct Indi_Force_Params_M5 : Indi_Force_Params {
   Indi_Force_Params_M5() : Indi_Force_Params(indi_force_defaults, PERIOD_M5) {
     applied_price = (ENUM_APPLIED_PRICE)0;
     ma_method = 0;
-    period = 4;
+    period = 12;
     shift = 0;
   }
 } indi_force_m5;
@@ -19,13 +19,13 @@ struct Stg_Force_Params_M5 : StgParams {
   Stg_Force_Params_M5() : StgParams(stg_force_defaults) {
     lot_size = 0;
     signal_open_method = 0;
-    signal_open_filter = 0;
+    signal_open_filter = 1;
     signal_open_level = (float)0;
-    signal_open_boost = 1;
+    signal_open_boost = 0;
     signal_close_method = 0;
     signal_close_level = (float)0;
     price_stop_method = 0;
-    price_stop_level = 0;
+    price_stop_level = 1;
     tick_filter_method = 1;
     max_spread = 0;
   }
