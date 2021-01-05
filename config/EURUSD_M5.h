@@ -20,7 +20,7 @@ struct Stg_Force_Params_M5 : StgParams {
     lot_size = 0;
     signal_open_method = 0;
     signal_open_filter = 1;
-    signal_open_level = (float)0;
+    signal_open_level = (float)0.0;
     signal_open_boost = 0;
     signal_close_method = 0;
     signal_close_level = (float)0;
