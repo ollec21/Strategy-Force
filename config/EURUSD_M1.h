@@ -23,7 +23,7 @@ struct Stg_Force_Params_M1 : StgParams {
     signal_open_level = (float)5;
     signal_open_boost = 0;
     signal_close_method = 0;
-    signal_close_level = (float)0;
+    signal_close_level = (float)25;
     price_stop_method = 0;
     price_stop_level = 1;
     tick_filter_method = 1;
