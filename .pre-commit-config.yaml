@@ -11,12 +11,17 @@ repos:
     hooks:
       - id: markdownlint
 
+  - repo: https://github.com/motet-a/jinjalint
+    rev: master
+    hooks:
+      - id: jinjalint
+
   - repo: https://github.com/jumanjihouse/pre-commit-hooks
     rev: master  # or specific git tag
     hooks:
       - id: forbid-binary
         exclude: (\.ico|\.mqproj)$
-      # - id: git-check     # Configure in .gitattributes
+      - id: git-check     # Configure in .gitattributes
       # - id: markdownlint  # Configure in .mdlrc.style.rb
       # - id: require-ascii
 
