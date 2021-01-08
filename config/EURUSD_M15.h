@@ -22,10 +22,10 @@ struct Stg_Force_Params_M15 : StgParams {
     signal_open_filter = 2;
     signal_open_level = (float)-5.0;
     signal_open_boost = 1;
-    signal_close_method = 0;
-    signal_close_level = (float)40.0;
+    signal_close_method = 2;
+    signal_close_level = (float)10.0;
     price_stop_method = 0;
-    price_stop_level = (float)30.0;
+    price_stop_level = (float)10.0;
     tick_filter_method = 1;
     max_spread = 0;
   }
