@@ -5,11 +5,11 @@
 
 // User input params.
 INPUT float Force_LotSize = 0;               // Lot size
-INPUT int Force_SignalOpenMethod = 0;        // Signal open method (0-
+INPUT int Force_SignalOpenMethod = 0;        // Signal open method (-7-7)
 INPUT float Force_SignalOpenLevel = 0.0f;    // Signal open level
 INPUT int Force_SignalOpenFilterMethod = 1;  // Signal open filter method
 INPUT int Force_SignalOpenBoostMethod = 0;   // Signal open boost method
-INPUT int Force_SignalCloseMethod = 0;       // Signal close method (0-
+INPUT int Force_SignalCloseMethod = 0;       // Signal close method (-7-7)
 INPUT float Force_SignalCloseLevel = 0.0f;   // Signal close level
 INPUT int Force_PriceStopMethod = 0;         // Price stop method
 INPUT float Force_PriceStopLevel = 0;        // Price stop level
