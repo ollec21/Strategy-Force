@@ -25,7 +25,7 @@ struct Stg_Force_Params_{{ Timeframe }} : StgParams {
     signal_close_method = {{ Force_SignalCloseMethod | default(0) }};
     signal_close_level = (float){{ Force_SignalCloseLevel | default(0) }};
     price_stop_method = {{ Force_PriceStopMethod | default(0) }};
-    price_stop_level = {{ Force_SignalCloseLevel | default(1) }};
+    price_stop_level = (float){{ Force_SignalCloseLevel | default(1) }};
     tick_filter_method = {{ Force_TickFilterMethod  | default(1) }};
     max_spread = {{ Force_MaxSpread | default(0) }};
   }
