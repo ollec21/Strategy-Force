@@ -22,13 +22,14 @@ INPUT string __Force_Indi_Force_Parameters__ =
 INPUT int Force_Indi_Force_Period = 38;                       // Period
 INPUT ENUM_MA_METHOD Force_Indi_Force_MA_Method = 0;          // MA Method
 INPUT ENUM_APPLIED_PRICE Force_Indi_Force_Applied_Price = 2;  // Applied Price
+INPUT ENUM_APPLIED_PRICE Force_Indi_Force_Shift = 0;          // Shift
 
 // Structs.
 
 // Defines struct with default user indicator values.
 struct Indi_Force_Params_Defaults : ForceParams {
   Indi_Force_Params_Defaults()
-      : ForceParams(::Force_Indi_Force_Period, ::Force_Indi_Force_MA_Method, ::Force_Indi_Force_Applied_Price) {}
+      : ForceParams(::Force_Indi_Force_Period, ::Force_Indi_Force_MA_Method, ::Force_Indi_Force_Applied_Price, ::Force_Indi_Force_Shift) {}
 } indi_force_defaults;
 
 // Defines struct to store indicator parameter values.
