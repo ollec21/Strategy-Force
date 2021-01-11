@@ -22,8 +22,8 @@ struct Stg_Force_Params_M5 : StgParams {
     signal_open_filter = 2;
     signal_open_level = (float)-10.0;
     signal_open_boost = 1;
-    signal_close_method = 0;
-    signal_close_level = (float)15.0;
+    signal_close_method = -4;
+    signal_close_level = (float)5.0;
     price_stop_method = 0;
     price_stop_level = (float)5.0;
     tick_filter_method = 1;
