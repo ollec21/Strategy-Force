@@ -7,7 +7,7 @@
 struct Indi_Force_Params_H4 : ForceParams {
   Indi_Force_Params_H4() : ForceParams(indi_force_defaults, PERIOD_H4) {
     applied_price = (ENUM_APPLIED_PRICE)0;
-    ma_method = 0;
+    ma_method = (ENUM_MA_METHOD)0;
     period = 14;
     shift = 0;
   }
