@@ -19,7 +19,7 @@ struct Stg_Force_Params_M30 : StgParams {
   Stg_Force_Params_M30() : StgParams(stg_force_defaults) {
     lot_size = 0;
     signal_open_method = 0;
-    signal_open_filter = 1;
+    signal_open_filter = 0;
     signal_open_level = (float)10.0;
     signal_open_boost = 1;
     signal_close_method = -4;
