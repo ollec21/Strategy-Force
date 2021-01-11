@@ -18,18 +18,19 @@ INPUT float Force_MaxSpread = 4.0;           // Max spread to trade (pips)
 INPUT int Force_Shift = 1;                   // Shift (relative to the current bar, 0 - default)
 INPUT int Force_OrderCloseTime = -20;        // Order close time in mins (>0) or bars (<0)
 INPUT string __Force_Indi_Force_Parameters__ =
-    "-- Force strategy: Force indicator params --";           // >>> Force strategy: Force indicator <<<
-INPUT int Force_Indi_Force_Period = 38;                       // Period
-INPUT ENUM_MA_METHOD Force_Indi_Force_MA_Method = 0;          // MA Method
-INPUT ENUM_APPLIED_PRICE Force_Indi_Force_Applied_Price = 2;  // Applied Price
-INPUT ENUM_APPLIED_PRICE Force_Indi_Force_Shift = 0;          // Shift
+    "-- Force strategy: Force indicator params --";                   // >>> Force strategy: Force indicator <<<
+INPUT int Force_Indi_Force_Period = 38;                               // Period
+INPUT ENUM_MA_METHOD Force_Indi_Force_MA_Method = (ENUM_MA_METHOD)0;  // MA Method
+INPUT ENUM_APPLIED_PRICE Force_Indi_Force_Applied_Price = (ENUM_APPLIED_PRICE)2;  // Applied Price
+INPUT ENUM_APPLIED_PRICE Force_Indi_Force_Shift = 0;                              // Shift
 
 // Structs.
 
 // Defines struct with default user indicator values.
 struct Indi_Force_Params_Defaults : ForceParams {
   Indi_Force_Params_Defaults()
-      : ForceParams(::Force_Indi_Force_Period, ::Force_Indi_Force_MA_Method, ::Force_Indi_Force_Applied_Price, ::Force_Indi_Force_Shift) {}
+      : ForceParams(::Force_Indi_Force_Period, ::Force_Indi_Force_MA_Method, ::Force_Indi_Force_Applied_Price,
+                    ::Force_Indi_Force_Shift) {}
 } indi_force_defaults;
 
 // Defines struct with default user strategy values.
@@ -73,7 +74,7 @@ class Stg_Force : public Strategy {
     StgParams _stg_params(stg_force_defaults);
     if (!Terminal::IsOptimization()) {
       SetParamsByTf<ForceParams>(_indi_params, _tf, indi_force_m1, indi_force_m5, indi_force_m15, indi_force_m30,
-                                       indi_force_h1, indi_force_h4, indi_force_h8);
+                                 indi_force_h1, indi_force_h4, indi_force_h8);
       SetParamsByTf<StgParams>(_stg_params, _tf, stg_force_m1, stg_force_m5, stg_force_m15, stg_force_m30, stg_force_h1,
                                stg_force_h4, stg_force_h8);
     }
