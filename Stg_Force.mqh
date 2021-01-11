@@ -22,7 +22,7 @@ INPUT string __Force_Indi_Force_Parameters__ =
 INPUT int Force_Indi_Force_Period = 38;                               // Period
 INPUT ENUM_MA_METHOD Force_Indi_Force_MA_Method = (ENUM_MA_METHOD)0;  // MA Method
 INPUT ENUM_APPLIED_PRICE Force_Indi_Force_Applied_Price = (ENUM_APPLIED_PRICE)2;  // Applied Price
-INPUT ENUM_APPLIED_PRICE Force_Indi_Force_Shift = 0;                              // Shift
+INPUT int Force_Indi_Force_Shift = 0;                                             // Shift
 
 // Structs.
 
