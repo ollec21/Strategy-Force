@@ -32,12 +32,6 @@ struct Indi_Force_Params_Defaults : ForceParams {
       : ForceParams(::Force_Indi_Force_Period, ::Force_Indi_Force_MA_Method, ::Force_Indi_Force_Applied_Price, ::Force_Indi_Force_Shift) {}
 } indi_force_defaults;
 
-// Defines struct to store indicator parameter values.
-struct Indi_Force_Params : public ForceParams {
-  // Struct constructors.
-  void Indi_Force_Params(ForceParams &_params, ENUM_TIMEFRAMES _tf) : ForceParams(_params, _tf) {}
-};
-
 // Defines struct with default user strategy values.
 struct Stg_Force_Params_Defaults : StgParams {
   Stg_Force_Params_Defaults()
@@ -49,11 +43,11 @@ struct Stg_Force_Params_Defaults : StgParams {
 
 // Struct to define strategy parameters to override.
 struct Stg_Force_Params : StgParams {
-  Indi_Force_Params iparams;
+  ForceParams iparams;
   StgParams sparams;
 
   // Struct constructors.
-  Stg_Force_Params(Indi_Force_Params &_iparams, StgParams &_sparams)
+  Stg_Force_Params(ForceParams &_iparams, StgParams &_sparams)
       : iparams(indi_force_defaults, _iparams.tf), sparams(stg_force_defaults) {
     iparams = _iparams;
     sparams = _sparams;
@@ -75,10 +69,10 @@ class Stg_Force : public Strategy {
 
   static Stg_Force *Init(ENUM_TIMEFRAMES _tf = NULL, long _magic_no = NULL, ENUM_LOG_LEVEL _log_level = V_INFO) {
     // Initialize strategy initial values.
-    Indi_Force_Params _indi_params(indi_force_defaults, _tf);
+    ForceParams _indi_params(indi_force_defaults, _tf);
     StgParams _stg_params(stg_force_defaults);
     if (!Terminal::IsOptimization()) {
-      SetParamsByTf<Indi_Force_Params>(_indi_params, _tf, indi_force_m1, indi_force_m5, indi_force_m15, indi_force_m30,
+      SetParamsByTf<ForceParams>(_indi_params, _tf, indi_force_m1, indi_force_m5, indi_force_m15, indi_force_m30,
                                        indi_force_h1, indi_force_h4, indi_force_h8);
       SetParamsByTf<StgParams>(_stg_params, _tf, stg_force_m1, stg_force_m5, stg_force_m15, stg_force_m30, stg_force_h1,
                                stg_force_h4, stg_force_h8);
