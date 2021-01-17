@@ -6,9 +6,9 @@
 // Defines indicator's parameter values for the given pair symbol and timeframe.
 struct Indi_Force_Params_M15 : ForceParams {
   Indi_Force_Params_M15() : ForceParams(indi_force_defaults, PERIOD_M15) {
-    applied_price = (ENUM_APPLIED_PRICE)0;
-    ma_method = (ENUM_MA_METHOD)0;
-    period = 24;
+    applied_price = (ENUM_APPLIED_PRICE)2;
+    ma_method = (ENUM_MA_METHOD)2;
+    period = 22;
     shift = 0;
   }
 } indi_force_m15;
