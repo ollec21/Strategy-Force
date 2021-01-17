@@ -6,9 +6,9 @@
 // Defines indicator's parameter values for the given pair symbol and timeframe.
 struct Indi_Force_Params_M1 : ForceParams {
   Indi_Force_Params_M1() : ForceParams(indi_force_defaults, PERIOD_M1) {
-    applied_price = (ENUM_APPLIED_PRICE)3;
+    applied_price = (ENUM_APPLIED_PRICE)0;
     ma_method = (ENUM_MA_METHOD)0;
-    period = 4;
+    period = 2;
     shift = 0;
   }
 } indi_force_m1;
@@ -23,9 +23,9 @@ struct Stg_Force_Params_M1 : StgParams {
     signal_open_level = (float)-10.0;
     signal_open_boost = 0;
     signal_close_method = 0;
-    signal_close_level = (float)45.0;
+    signal_close_level = (float)0;
     price_stop_method = 0;
-    price_stop_level = (float)25.0;
+    price_stop_level = (float)1;
     tick_filter_method = 1;
     max_spread = 0;
   }
