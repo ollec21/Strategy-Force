@@ -88,7 +88,6 @@ class Stg_Force : public Strategy {
     _stg_params.SetTf(_tf, _Symbol);
     // Initialize strategy instance.
     Strategy *_strat = new Stg_Force(_stg_params, "Force");
-    _stg_params.SetStops(_strat, _strat);
     return _strat;
   }
 
