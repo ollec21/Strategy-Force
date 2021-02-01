@@ -73,12 +73,12 @@ class Stg_Force : public Strategy {
     // Initialize strategy initial values.
     ForceParams _indi_params(indi_force_defaults, _tf);
     StgParams _stg_params(stg_force_defaults);
-    if (!Terminal::IsOptimization()) {
-      SetParamsByTf<ForceParams>(_indi_params, _tf, indi_force_m1, indi_force_m5, indi_force_m15, indi_force_m30,
-                                 indi_force_h1, indi_force_h4, indi_force_h8);
-      SetParamsByTf<StgParams>(_stg_params, _tf, stg_force_m1, stg_force_m5, stg_force_m15, stg_force_m30, stg_force_h1,
-                               stg_force_h4, stg_force_h8);
-    }
+#ifdef __config__
+    SetParamsByTf<ForceParams>(_indi_params, _tf, indi_force_m1, indi_force_m5, indi_force_m15, indi_force_m30,
+                               indi_force_h1, indi_force_h4, indi_force_h8);
+    SetParamsByTf<StgParams>(_stg_params, _tf, stg_force_m1, stg_force_m5, stg_force_m15, stg_force_m30, stg_force_h1,
+                             stg_force_h4, stg_force_h8);
+#endif
     // Initialize indicator.
     ForceParams force_params(_indi_params);
     _stg_params.SetIndicator(new Indi_Force(_indi_params));
